@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Singleton<PlayerController>
 {
     [Header("Settings")]
     [Tooltip("Speed for walking")]
@@ -38,8 +38,10 @@ public class PlayerController : MonoBehaviour
 
     private PlayerInput input; // Current player's input.
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         input = new PlayerInput();
         input.Enable();
     }
