@@ -38,6 +38,11 @@ public class PlayerController : Singleton<PlayerController>
 
     private PlayerInput input; // Current player's input.
 
+    public bool IsCrouching => isCrouching;
+    public bool IsWalking => moveInput != Vector2.zero;
+    public bool IsRunning => IsWalking && isRunning;
+    public PlayerInput Input => input;
+
     protected override void Awake()
     {
         base.Awake();
@@ -66,6 +71,19 @@ public class PlayerController : Singleton<PlayerController>
     private void FixedUpdate()
     {
         MovementHandler();
+    }
+
+    // Function to make player be able or unable to control character.
+    public void SetControllable(bool value)
+    {
+        if (value)
+        {
+            input.Enable();
+        }
+        else
+        {
+            input.Disable();
+        }
     }
 
     // Function to handle and read input system.

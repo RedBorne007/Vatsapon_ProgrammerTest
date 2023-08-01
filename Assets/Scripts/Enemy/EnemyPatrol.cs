@@ -1,10 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class EnemyPatrol : MonoBehaviour
 {
+    [Tooltip("Determine to use debug mode or not")]
+    [SerializeField] private bool isDebug = true;
+
+    [Space]
+
     [Tooltip("Array of all patrol positions")]
     [SerializeField] private Vector3[] patrolPositions;
 
@@ -59,23 +67,29 @@ public class EnemyPatrolEditor : Editor
 
     private void OnSceneGUI()
     {
-        Vector3[] positions = enemyPatrol.PatrolPositions;
+        bool isDebug = serializedObject.FindProperty("isDebug").boolValue;
 
-        for (int i = 0; i < positions.Length; i++)
+        if (isDebug)
         {
-            Vector3 startPos = positions[i];
-            Vector3 endPos = i + 1 == positions.Length ? positions[0] : positions[i + 1];
+            Vector3[] positions = enemyPatrol.PatrolPositions;
+            Handles.zTest = CompareFunction.LessEqual;
 
-            Handles.DrawDottedLine(startPos, endPos, 5f);
-
-            EditorGUI.BeginChangeCheck();
-            Vector3 pos = Handles.DoPositionHandle(positions[i], Quaternion.identity);
-            Handles.Label(pos + (Vector3.up * 0.5f), $"Path #{i} {pos.x.ToString("F2")}, {pos.y.ToString("F2")}, {pos.z.ToString("F2")}");
-
-            // If there's make changes in position handle, update value back to array.
-            if (EditorGUI.EndChangeCheck())
+            for (int i = 0; i < positions.Length; i++)
             {
-                enemyPatrol.PatrolPositions[i] = pos;
+                Vector3 startPos = positions[i];
+                Vector3 endPos = i + 1 == positions.Length ? positions[0] : positions[i + 1];
+
+                Handles.DrawDottedLine(startPos, endPos, 5f);
+
+                EditorGUI.BeginChangeCheck();
+                Vector3 pos = Handles.DoPositionHandle(positions[i], Quaternion.identity);
+                Handles.Label(pos + (Vector3.up * 0.5f), $"Path #{i} {pos.x.ToString("F2")}, {pos.y.ToString("F2")}, {pos.z.ToString("F2")}");
+
+                // If there's make changes in position handle, update value back to array.
+                if (EditorGUI.EndChangeCheck())
+                {
+                    enemyPatrol.PatrolPositions[i] = pos;
+                }
             }
         }
     }

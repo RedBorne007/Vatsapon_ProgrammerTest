@@ -4,7 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class BaseInteractable : MonoBehaviour
+[AddComponentMenu("")]
+public abstract class BaseInteractable : MonoBehaviour
 {
     [Header("Settings")]
     [Tooltip("Text that will display on popup")]
@@ -15,12 +16,19 @@ public class BaseInteractable : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject interactPopupPrefab;
 
+    [Space]
+
+    [SerializeField] private UnityEvent onFirstInteract;
     [SerializeField] private UnityEvent onInteract;
 
+    protected bool isShow = true; // Determine to show popup when raycasted or not.
     protected bool isRaycasted; // Determine if player is raycasting this interactable.
+    private bool isFirstInteract = false; // Determine if player has interact this once or not.
     private Transform popupParent;
     private GameObject currentPopup;
     private Camera cam;
+
+    public bool IsShow { get { return isShow; } set { isShow = value; } }
 
     protected virtual void Start()
     {
@@ -34,6 +42,13 @@ public class BaseInteractable : MonoBehaviour
 
     protected virtual void Update()
     {
+        bool isInteractKey = PlayerController.Instance.Input.Player.Interact.WasPressedThisFrame();
+
+        if (isInteractKey && isRaycasted)
+        {
+            OnInteract();
+        }
+
         PopupUpdater();
     }
 
@@ -42,7 +57,7 @@ public class BaseInteractable : MonoBehaviour
     {
         Vector2 uiPosition = cam.WorldToScreenPoint(transform.position + popupOffset);
         currentPopup.transform.position = uiPosition;
-        currentPopup.SetActive(isRaycasted);
+        currentPopup.SetActive(isRaycasted && isShow);
     }
 
     // Function to set value if it's being raycasted or not.
@@ -51,6 +66,12 @@ public class BaseInteractable : MonoBehaviour
     // Function to execute when player interact with this interactable.
     public virtual void OnInteract()
     {
+        if (!isFirstInteract)
+        {
+            isFirstInteract = true;
+            onFirstInteract?.Invoke();
+        }
+
         onInteract?.Invoke();
     }
 }
