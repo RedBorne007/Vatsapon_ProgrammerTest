@@ -88,6 +88,7 @@ public class EnemyPatrolEditor : Editor
                 // If there's make changes in position handle, update value back to array.
                 if (EditorGUI.EndChangeCheck())
                 {
+                    Undo.RecordObject(enemyPatrol, "Move patrol position");
                     enemyPatrol.PatrolPositions[i] = pos;
                 }
             }

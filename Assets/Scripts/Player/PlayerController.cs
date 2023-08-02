@@ -20,6 +20,8 @@ public class PlayerController : Singleton<PlayerController>
     [Header("References")]
     [Tooltip("Rigidbody of player")]
     [SerializeField] private Rigidbody rigid;
+    [Tooltip("Transform that use for player's detection")]
+    [SerializeField] private Transform detectTransform;
     [Tooltip("Transform of player's camera")]
     [SerializeField] private Transform cam;
     [Tooltip("Animator controller of Player's model")]
@@ -28,7 +30,9 @@ public class PlayerController : Singleton<PlayerController>
     private const string ANIM_WALK_HASH = "IsWalking";
     private const string ANIM_RUN_HASH = "IsRunning";
     private const string ANIM_CROUCH_HASH = "IsCrouching";
+    private const string ANIM_DEATH = "Player_Death";
 
+    private bool isDead;
     private Vector2 moveInput = Vector2.zero; // Input from player's controller.
     private Vector3 moveDirection = Vector3.zero; // Final player's movement direction.
     private bool isCrouching; // Determine if player is crouching or not.
@@ -38,6 +42,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private PlayerInput input; // Current player's input.
 
+    public Transform Detect => detectTransform;
+    public bool IsDead => isDead;
     public bool IsCrouching => isCrouching;
     public bool IsWalking => moveInput != Vector2.zero;
     public bool IsRunning => IsWalking && isRunning;
@@ -51,15 +57,8 @@ public class PlayerController : Singleton<PlayerController>
         input.Enable();
     }
 
-    private void OnEnable()
-    {
-        input.Enable();
-    }
-
-    private void OnDisable()
-    {
-        input.Disable();
-    }
+    private void OnEnable() => input.Enable();
+    private void OnDisable() => input.Disable();
 
     private void Update()
     {
@@ -145,5 +144,18 @@ public class PlayerController : Singleton<PlayerController>
         animator.SetBool(ANIM_WALK_HASH, moveInput.magnitude >= 0.1f);
         animator.SetBool(ANIM_RUN_HASH, moveInput.magnitude >= 0.1f && isRunning);
         animator.SetBool(ANIM_CROUCH_HASH, isCrouching);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        // If player get caught by enemy while still alive, game over.
+        if (collision.gameObject.CompareTag("Enemy") && !isDead)
+        {
+            isDead = true;
+            rigid.isKinematic = true;
+            animator.Play(ANIM_DEATH);
+
+            GameManager.Instance.GameOver();
+        }
     }
 }

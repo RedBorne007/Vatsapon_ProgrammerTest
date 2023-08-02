@@ -89,7 +89,7 @@ public class InspectManager : Singleton<InspectManager>, IPointerDownHandler, ID
             renderTexture = null;
         }
 
-        renderTexture = new RenderTexture(Screen.width, Screen.height, 0);
+        renderTexture = new RenderTexture(Screen.width, Screen.height, 32);
         renderTexture.name = "Inspect Render Texture";
         inspectCamera.targetTexture = renderTexture;
         imageRenderer.texture = renderTexture;

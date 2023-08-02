@@ -10,6 +10,8 @@ public class UIManager : Singleton<UIManager>
 
     [Tooltip("Screen that display when pause the game")]
     [SerializeField] private GameObject pauseScreen;
+    [Tooltip("Screen that display when game over")]
+    [SerializeField] private GameObject gameOverScreen;
     [Tooltip("Screen that display when inspecting object")]
     [SerializeField] private GameObject inspectScreen;
 
@@ -21,6 +23,7 @@ public class UIManager : Singleton<UIManager>
 
     public Transform HUDTransform => hudTransform;
     public GameObject PauseScreen => pauseScreen;
+    public GameObject GameOverScreen => gameOverScreen;
     public GameObject InspectScreen => inspectScreen;
 
     private void Start()
@@ -31,20 +34,24 @@ public class UIManager : Singleton<UIManager>
 
     private void Update()
     {
+        // If it's game over, return.
+        if (gameM.IsGameOver)
+        {
+            return;
+        }
+
         // [ESC] - Pause/Unpause the game or get out of focus object.
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // If there's no focus object, use it as pause/unpause.
             if (!currentFocusObject)
             {
                 gameM.SetPause(!gameM.IsPause);
             }
             else
             {
-                onCloseFocus?.Invoke();
-                currentFocusObject.SetActive(false);
-                currentFocusObject = null;
-
-                player.SetControllable(true);
+                // Else, unfocus the current object.
+                LeaveFocus();
             }
         }
     }
@@ -59,5 +66,15 @@ public class UIManager : Singleton<UIManager>
         gameM.SetCursorLock(false);
         gameM.SetCameraLock(true);
         player.SetControllable(false);
+    }
+
+    // Function to exit from focus object.
+    public void LeaveFocus()
+    {
+        onCloseFocus?.Invoke();
+        currentFocusObject?.SetActive(false);
+        currentFocusObject = null;
+
+        player.SetControllable(true);
     }
 }

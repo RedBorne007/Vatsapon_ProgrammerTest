@@ -30,6 +30,8 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private int wanderTime = 2;
     [Tooltip("Range of wandering and searching")]
     [SerializeField] private float wanderRange = 2;
+    [Tooltip("Range to destination (In case it's unreachable position)")]
+    [SerializeField] private float closestRange = 2f;
 
     [Header("References")]
     [Tooltip("State of enemy's behavior")]
@@ -50,15 +52,17 @@ public class EnemyBehavior : MonoBehaviour
     private const string ANIM_SCREAM = "Enemy_Scream";
 
     private Vector3 lastSeenPosition; // Lastest position that enemy saw player.
+    private Vector3 agentDestination; // Destination that enemy will reach.
     private float currentChaseDelay;
     private float currentPatrolWaitDuration;
     private float currentLookAroundDuration;
-    private float currentWanderTime;
+    private int currentWanderTime;
 
     private PlayerController player;
 
     public EnemyState State => enemyState;
     public Vector3 LastSeenPosition { get { return lastSeenPosition; } set { lastSeenPosition = value; } }
+    public Vector3 Destination => agentDestination;
 
     private void Start()
     {
@@ -67,6 +71,15 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Update()
     {
+        AnimationHandler();
+
+        // If player is dead, stop moving.
+        if (player.IsDead)
+        {
+            navAgent.isStopped = true;
+            return;
+        }
+
         switch (enemyState)
         {
             case EnemyState.Patrol:
@@ -81,8 +94,6 @@ public class EnemyBehavior : MonoBehaviour
             Chase();
             break;
         }
-
-        AnimationHandler();
     }
     
     // Function to handle enemy's animation.
@@ -95,7 +106,7 @@ public class EnemyBehavior : MonoBehaviour
     // Function to handle patrol behavior (Walk around in certain path).
     private void Patrol()
     {
-        navAgent.speed = walkSpeed;
+        navAgent.speed = navAgent.isStopped ? 0f : walkSpeed;
         
         // If there's player in sight, start chasing.
         if (sense.IsInSight())
@@ -108,16 +119,20 @@ public class EnemyBehavior : MonoBehaviour
         if (currentPatrolWaitDuration > 0f)
         {
             navAgent.isStopped = true;
+            navAgent.velocity = Vector3.up * navAgent.velocity.y;
             currentPatrolWaitDuration -= Time.deltaTime;
             return;
         }
 
+        UpdateDestination(patrol.Current);
+        
         navAgent.isStopped = false;
-        navAgent.SetDestination(patrol.Current);
-        float distance = Vector3.Distance(transform.position, patrol.Current);
+        navAgent.destination = agentDestination;
+
+        float distance = Vector3.Distance(transform.position, agentDestination);
 
         // If enemy is close to the patrol position, set next patrol position.
-        if (distance <= 0.1f)
+        if (distance <= closestRange)
         {
             patrol.Next();
             currentPatrolWaitDuration = patrolWaitDuration;
@@ -127,7 +142,7 @@ public class EnemyBehavior : MonoBehaviour
     // Function to handle wander behavior (Look around for player).
     private void Wander()
     {
-        navAgent.speed = walkSpeed;
+        navAgent.speed = navAgent.isStopped ? 0f : walkSpeed;
 
         // If enemy hasn't wander around enough, keep wandering.
         if (currentWanderTime > 0)
@@ -143,6 +158,8 @@ public class EnemyBehavior : MonoBehaviour
                 }
 
                 navAgent.isStopped = true;
+                navAgent.velocity = Vector3.up * navAgent.velocity.y;
+
                 currentLookAroundDuration -= Time.deltaTime;
 
                 // After look around, keep looking other area (If there's wander time left).
@@ -177,12 +194,15 @@ public class EnemyBehavior : MonoBehaviour
                 return;
             }
 
+            UpdateDestination(lastSeenPosition);
+
             navAgent.isStopped = false;
-            navAgent.SetDestination(lastSeenPosition);
-            float distance = Vector3.Distance(transform.position, lastSeenPosition);
+            navAgent.destination = agentDestination;
+
+            float distance = Vector3.Distance(transform.position, agentDestination);
 
             // If enemy is close wander position, look around for certain time.
-            if (distance <= 0.1f)
+            if (distance <= closestRange)
             {
                 currentLookAroundDuration = lookAroundDuration;
             }
@@ -217,7 +237,7 @@ public class EnemyBehavior : MonoBehaviour
             return;
         }
 
-        navAgent.speed = chaseSpeed;
+        navAgent.speed = navAgent.isStopped ? 0f : chaseSpeed;
 
         // If there's wait timer, wait. If it reaches 0, go back to patrol.
         if (currentLookAroundDuration > 0f)
@@ -231,6 +251,7 @@ public class EnemyBehavior : MonoBehaviour
             else
             {
                 navAgent.isStopped = true;
+                navAgent.velocity = Vector3.up * navAgent.velocity.y;
                 currentLookAroundDuration -= Time.deltaTime;
             }
 
@@ -244,8 +265,10 @@ public class EnemyBehavior : MonoBehaviour
             return;
         }
 
+        UpdateDestination(lastSeenPosition);
+
         navAgent.isStopped = false;
-        navAgent.SetDestination(lastSeenPosition);
+        navAgent.destination = agentDestination;
 
         // If player is in sight while chasing, update last seen position.
         if (sense.IsInSight())
@@ -253,10 +276,10 @@ public class EnemyBehavior : MonoBehaviour
             lastSeenPosition = player.transform.position;
         }
 
-        float distance = Vector3.Distance(transform.position, lastSeenPosition);
+        float distance = Vector3.Distance(transform.position, agentDestination);
 
         // If enemy is close to the patrol position, set next patrol position.
-        if (distance <= 0.1f)
+        if (distance <= closestRange)
         {
             lastSeenPosition = player.transform.position;
             currentLookAroundDuration = lookAroundDuration;
@@ -304,6 +327,41 @@ public class EnemyBehavior : MonoBehaviour
 
         enemyState = newState;
     }
+
+    // Function to update destination.
+    private void UpdateDestination(Vector3 desirePosition)
+    {
+        // If enemy can reach destination, set it as destination.
+        if (navAgent.CalculatePath(desirePosition, navAgent.path))
+        {
+            agentDestination = desirePosition;
+        }
+        else
+        {
+            float distance = Vector3.Distance(agentDestination, desirePosition);
+
+            // If it can reach current destination and not too far, don't update it and return.
+            if (navAgent.CalculatePath(agentDestination, navAgent.path) && distance < 5f)
+            {
+                return;
+            }
+
+            // Else, find the closest position near destination instead.
+            bool found = false;
+            int searchRadius = 1;
+
+            while (!found)
+            {
+                if (NavMesh.SamplePosition(desirePosition, out NavMeshHit hit, searchRadius, NavMesh.AllAreas))
+                {
+                    agentDestination = hit.position;
+                    break;
+                }
+
+                searchRadius++;
+            }
+        }
+    }
 }
 
 #if UNITY_EDITOR
@@ -323,15 +381,22 @@ public class EnemyBehaviourEditor : Editor
 
         if (isDebug)
         {
+            Vector3 offset = Vector3.up * 0.1f;
             Handles.zTest = CompareFunction.LessEqual;
+
+            // Draw destination that enemy will reach.
+            Color color = Color.blue;
+            color.a = 0.25f;
+            Handles.color = color;
+            Handles.DrawSolidDisc(enemy.Destination + offset, Vector3.up, 1f);
 
             // Draw player latest's position.
             if (enemy.State != EnemyBehavior.EnemyState.Patrol)
             {
-                Color color = enemy.State == EnemyBehavior.EnemyState.Wander ? Color.white : Color.yellow;
+                color = enemy.State == EnemyBehavior.EnemyState.Wander ? Color.white : Color.yellow;
                 color.a = 0.25f;
                 Handles.color = color;
-                Handles.DrawSolidDisc(enemy.LastSeenPosition, Vector3.up, 1f);
+                Handles.DrawSolidDisc(enemy.LastSeenPosition + offset, Vector3.up, 1f);
             }
 
             // Draw enemy's FOV.
@@ -341,10 +406,13 @@ public class EnemyBehaviourEditor : Editor
             {
                 EnemySense sense = senseObject as EnemySense;
 
-                Color color = Color.white;
-
+                // Change color based on enemy's state.
                 switch (enemy.State)
                 {
+                    case EnemyBehavior.EnemyState.Patrol:
+                    color = Color.white;
+                    break;
+
                     case EnemyBehavior.EnemyState.Wander:
                     color = Color.yellow;
                     break;
@@ -363,7 +431,7 @@ public class EnemyBehaviourEditor : Editor
                 float angle = enemy.State == EnemyBehavior.EnemyState.Chase ? sense.ChaseAngle : sense.Angle;
                 float distance = enemy.State == EnemyBehavior.EnemyState.Chase ? sense.ChaseDistance : sense.Distance;
 
-                Handles.DrawSolidArc(enemy.transform.position, Vector3.up, forward, angle, distance);
+                Handles.DrawSolidArc(enemy.transform.position + offset, Vector3.up, forward, angle, distance);
             }
         }
     }

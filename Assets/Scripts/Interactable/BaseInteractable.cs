@@ -10,6 +10,8 @@ public abstract class BaseInteractable : MonoBehaviour
     [Header("Settings")]
     [Tooltip("Text that will display on popup")]
     [SerializeField] private string interactLabel;
+    [Tooltip("Minimum distance to show interactable icon")]
+    [SerializeField] private float displayDistance = 5f;
     [Tooltip("Offset of popup position from object's position")]
     [SerializeField] private Vector3 popupOffset;
 
@@ -21,27 +23,37 @@ public abstract class BaseInteractable : MonoBehaviour
     [SerializeField] private UnityEvent onFirstInteract;
     [SerializeField] private UnityEvent onInteract;
 
+    protected bool isInteractable = true; // Determine if it's interactable or not.
     protected bool isShow = true; // Determine to show popup when raycasted or not.
     protected bool isRaycasted; // Determine if player is raycasting this interactable.
     private bool isFirstInteract = false; // Determine if player has interact this once or not.
     private Transform popupParent;
     private GameObject currentPopup;
     private Camera cam;
+    private PlayerController player;
 
+    public bool IsInteactable { get { return isInteractable; } set { isInteractable = value; } }
     public bool IsShow { get { return isShow; } set { isShow = value; } }
 
     protected virtual void Start()
     {
         cam = Camera.main;
+        player = PlayerController.Instance;
         popupParent = UIManager.Instance.HUDTransform;
 
         currentPopup = Instantiate(interactPopupPrefab, popupParent);
         currentPopup.transform.SetAsFirstSibling();
-        currentPopup.transform.Find("Text").GetComponent<TMP_Text>().text = interactLabel;
+        currentPopup.transform.Find("Popup/Panel/Text").GetComponent<TMP_Text>().text = interactLabel;
     }
 
     protected virtual void Update()
     {
+        // If it's not interactable, return.
+        if (!isInteractable)
+        {
+            return;
+        }
+
         bool isInteractKey = PlayerController.Instance.Input.Player.Interact.WasPressedThisFrame();
 
         if (isInteractKey && isRaycasted)
@@ -55,9 +67,16 @@ public abstract class BaseInteractable : MonoBehaviour
     // Function to update popup.
     private void PopupUpdater()
     {
-        Vector2 uiPosition = cam.WorldToScreenPoint(transform.position + popupOffset);
+        float distance = Vector3.Distance(player.transform.position, transform.position);
+        
+        Vector3 uiPosition = cam.WorldToScreenPoint(transform.position + popupOffset);
+        bool inCameraView = uiPosition.z > 0f;
+
         currentPopup.transform.position = uiPosition;
-        currentPopup.SetActive(isRaycasted && isShow);
+        currentPopup.SetActive(distance <= displayDistance && isShow && inCameraView);
+
+        CanvasGroup popupCanvas = currentPopup.transform.Find("Popup").GetComponent<CanvasGroup>();
+        popupCanvas.alpha = isRaycasted ? 1f : 0f;
     }
 
     // Function to set value if it's being raycasted or not.
