@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -31,6 +32,7 @@ public abstract class BaseInteractable : MonoBehaviour
     private GameObject currentPopup;
     private Camera cam;
     private PlayerController player;
+    protected Collider colliders;
 
     public bool IsInteactable { get { return isInteractable; } set { isInteractable = value; } }
     public bool IsShow { get { return isShow; } set { isShow = value; } }
@@ -40,6 +42,7 @@ public abstract class BaseInteractable : MonoBehaviour
         cam = Camera.main;
         player = PlayerController.Instance;
         popupParent = UIManager.Instance.HUDTransform;
+        TryGetComponent(out colliders);
 
         currentPopup = Instantiate(interactPopupPrefab, popupParent);
         currentPopup.transform.SetAsFirstSibling();

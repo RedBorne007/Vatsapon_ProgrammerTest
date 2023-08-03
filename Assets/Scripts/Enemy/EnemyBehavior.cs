@@ -166,22 +166,7 @@ public class EnemyBehavior : MonoBehaviour
                 if (currentLookAroundDuration <= 0f)
                 {
                     currentWanderTime--;
-
-                    // Assign random position to wander around.
-                    Vector2 randomDirection = Random.insideUnitCircle;
-
-                    Physics.Raycast(transform.position + Vector3.up, randomDirection, out RaycastHit hit, wanderRange, sense.ObstacleLayer);
-
-                    // If it hit an obstacle, set that as hit point.
-                    if (hit.collider)
-                    {
-                        lastSeenPosition = hit.point;
-                    }
-                    else
-                    {
-                        // Else, use max wander range.
-                        lastSeenPosition = new Vector3(randomDirection.x * wanderRange, 0f, randomDirection.y * wanderRange);
-                    }
+                    AssignWanderPosition();
                 }
 
                 return;
@@ -239,7 +224,7 @@ public class EnemyBehavior : MonoBehaviour
 
         navAgent.speed = navAgent.isStopped ? 0f : chaseSpeed;
 
-        // If there's wait timer, wait. If it reaches 0, go back to patrol.
+        // If there's wait timer, wait. If it reaches 0, wander around.
         if (currentLookAroundDuration > 0f)
         {
             // If enemy still find player while looking around, make it still follow player.
@@ -302,8 +287,12 @@ public class EnemyBehavior : MonoBehaviour
             break;
 
             case EnemyState.Wander:
+
             currentWanderTime = wanderTime;
             currentLookAroundDuration = 0f;
+            
+            AssignWanderPosition();
+            
             break;
 
             case EnemyState.Chase:
@@ -360,6 +349,26 @@ public class EnemyBehavior : MonoBehaviour
 
                 searchRadius++;
             }
+        }
+    }
+
+    // Function to find position to wander around.
+    private void AssignWanderPosition()
+    {
+        // Assign random position to wander around.
+        Vector2 randomDirection = Random.insideUnitCircle;
+
+        Physics.Raycast(transform.position + Vector3.up, randomDirection, out RaycastHit hit, wanderRange, sense.ObstacleLayer);
+
+        // If it hit an obstacle, set that as hit point.
+        if (hit.collider)
+        {
+            lastSeenPosition = hit.point;
+        }
+        else
+        {
+            // Else, use max wander range.
+            lastSeenPosition = new Vector3(randomDirection.x * wanderRange, 0f, randomDirection.y * wanderRange);
         }
     }
 }

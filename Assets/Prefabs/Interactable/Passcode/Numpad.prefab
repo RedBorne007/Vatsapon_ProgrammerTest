@@ -26,7 +26,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1546930161313605579}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: 0, z: 0.55}
+  m_LocalPosition: {x: 0, y: 0, z: 0.51}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -202,7 +202,7 @@ Transform:
   m_GameObject: {fileID: 8419163738949681611}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.2, y: 0.2, z: 0.5}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.5}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.05}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4981484504629509818}
@@ -221,10 +221,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b152a835434c879448d2d10d5eca389e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  number: 1
+  padCharacter: 
+  isErase: 0
   displayText: {fileID: 3888755962624930523}
+  colliders: {fileID: 5885442674872771833}
   passcodeM: {fileID: 0}
-  animations: {fileID: 0}
   onEnter:
     m_PersistentCalls:
       m_Calls:
@@ -233,7 +234,7 @@ MonoBehaviour:
         m_MethodName: set_colorGradientPreset
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 11400000, guid: 408f664ebbb097944b208db62de1475e,
+          m_ObjectArgument: {fileID: 11400000, guid: cee1e5c0174387d4ba479e43f8cff6e1,
             type: 2}
           m_ObjectArgumentAssemblyTypeName: TMPro.TMP_ColorGradient, Unity.TextMeshPro
           m_IntArgument: 0
@@ -316,7 +317,7 @@ BoxCollider:
   m_GameObject: {fileID: 8419163738949681611}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}

@@ -69,7 +69,7 @@ public class EnemyPatrolEditor : Editor
     {
         bool isDebug = serializedObject.FindProperty("isDebug").boolValue;
 
-        if (isDebug)
+        if (isDebug && enemyPatrol.PatrolPositions != null)
         {
             Vector3[] positions = enemyPatrol.PatrolPositions;
             Handles.zTest = CompareFunction.LessEqual;
@@ -82,8 +82,9 @@ public class EnemyPatrolEditor : Editor
                 Handles.DrawDottedLine(startPos, endPos, 5f);
 
                 EditorGUI.BeginChangeCheck();
-                Vector3 pos = Handles.DoPositionHandle(positions[i], Quaternion.identity);
+                Vector3 pos = Handles.DoPositionHandle(startPos, Quaternion.identity);
                 Handles.Label(pos + (Vector3.up * 0.5f), $"Path #{i} {pos.x.ToString("F2")}, {pos.y.ToString("F2")}, {pos.z.ToString("F2")}");
+                Handles.DrawSolidDisc(startPos, Vector3.up, 0.5f);
 
                 // If there's make changes in position handle, update value back to array.
                 if (EditorGUI.EndChangeCheck())

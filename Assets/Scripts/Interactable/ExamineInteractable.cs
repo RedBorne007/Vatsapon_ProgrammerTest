@@ -24,6 +24,7 @@ public class ExamineInteractable : BaseInteractable
         base.OnInteract();
 
         isShow = false;
+        colliders.enabled = false;
         
         uiM.SetFocusObject(inspectCamera.gameObject, () =>
         {
@@ -31,6 +32,7 @@ public class ExamineInteractable : BaseInteractable
             GameManager.Instance.SetCursorLock(true);
             UIManager.Instance.InspectScreen.SetActive(false);
             isShow = true;
+            colliders.enabled = true;
         });
     }
 }

@@ -16,7 +16,7 @@ public class UIManager : Singleton<UIManager>
     [SerializeField] private GameObject inspectScreen;
 
     private GameObject currentFocusObject;
-    private Action onCloseFocus;
+    private event Action onCloseFocus;
 
     private GameManager gameM;
     private PlayerController player;
@@ -60,7 +60,7 @@ public class UIManager : Singleton<UIManager>
     public void SetFocusObject(GameObject screenObject, Action onClose)
     {
         currentFocusObject = screenObject;
-        onCloseFocus = onClose;
+        AddClosesFocusListener(onClose);
 
         currentFocusObject.SetActive(true);
         gameM.SetCursorLock(false);
@@ -68,10 +68,14 @@ public class UIManager : Singleton<UIManager>
         player.SetControllable(false);
     }
 
+    // Function to add listener when focus object closed.
+    public void AddClosesFocusListener(Action action) => onCloseFocus += action;
+
     // Function to exit from focus object.
     public void LeaveFocus()
     {
         onCloseFocus?.Invoke();
+        onCloseFocus = () => { };
         currentFocusObject?.SetActive(false);
         currentFocusObject = null;
 

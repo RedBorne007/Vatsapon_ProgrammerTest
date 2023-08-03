@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -24,8 +25,8 @@ public class PasscodeManager : MonoBehaviour
     [Header("References")]
     [Tooltip("Text to display current passcode")]
     [SerializeField] private TMP_Text passCodeText;
-    [Tooltip("Animator of the door")]
-    [SerializeField] private Animator animator;
+    [Tooltip("Parent of all passcode objects")]
+    [SerializeField] private Transform passCodeParents;
     [Tooltip("Interactable of this door")]
     [SerializeField] private BaseInteractable interactable;
 
@@ -34,22 +35,32 @@ public class PasscodeManager : MonoBehaviour
     [Tooltip("Event when player able to crack passcode")]
     [SerializeField] private UnityEvent onUnlock;
 
-    public const string ANIM_OPEN_HASH = "IsOpen";
-
     private string currentPasscode = "";
     private Coroutine currentErrorCoroutine;
     private bool isUnlock = false;
 
-    // Function to insert passcode.
-    public void Insert(int number)
+    // Function to initialize passcode manager.
+    public void Initialize()
     {
-        // If number isn't in range of 0-9 or already unlocked, return.
-        if (number < 0 || number > 9 || isUnlock) 
+        // Make sure there's no space in passcode.
+        passCode.Replace(" ", "");
+
+        UIManager.Instance.AddClosesFocusListener(delegate
+        {
+            SetNumpadLock(true);
+        });
+    }
+
+    // Function to insert passcode.
+    public void Insert(string pad)
+    {
+        // If passcode is already unlocked, return.
+        if (isUnlock) 
         {
             return;
         }
 
-        currentPasscode += number;
+        currentPasscode += pad;
         passCodeText?.SetText(currentPasscode);
 
         // If it reaches maximum passcode's length, check for correction.
@@ -60,7 +71,6 @@ public class PasscodeManager : MonoBehaviour
             {
                 isUnlock = true;
                 onUnlock?.Invoke();
-                animator.SetBool(ANIM_OPEN_HASH, true);
 
                 passCodeText.text = successText;
                 passCodeText.color = successColor;
@@ -100,6 +110,19 @@ public class PasscodeManager : MonoBehaviour
         }
 
         passCodeText.text = currentPasscode;
+    }
+
+    // Function to set lock/unlock numpad.
+    public void SetNumpadLock(bool value)
+    {
+        for (int i = 0; i < passCodeParents.childCount; i++)
+        {
+            if (passCodeParents.GetChild(i).TryGetComponent(out PasscodeNumpad numpad))
+            {
+                numpad.IsPressable = !value;
+                numpad.OnExit?.Invoke();
+            }
+        }
     }
 
     // Function to display error text with certain time.
