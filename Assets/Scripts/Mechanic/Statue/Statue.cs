@@ -4,47 +4,52 @@ using UnityEngine;
 
 public class Statue : MonoBehaviour
 {
-    [Tooltip("Current item that being displayed")]
-    [SerializeField] private ItemObject currentObject;
-
-    [Space]
-
+    [Tooltip("Valid item that need to be place")]
+    [SerializeField] private Item validItem;
     [Tooltip("Parent of display object")]
     [SerializeField] private Transform displayParent;
+    [Tooltip("Object that display when put item correctly")]
+    [SerializeField] private GameObject correctObject;
     [Tooltip("Material that display outline of object")]
     [SerializeField] private Outline outline;
+    [Tooltip("Manager of this statue")]
+    [SerializeField] private StatueManager statueM;
 
     private InventoryManager invM;
+    private UIManager uiM;
 
-    private bool isInteractable;
+    private ItemObject currentObject;
+    private bool isConditioned;
+
+    public bool IsConditioned => isConditioned;
 
     private void Start()
     {
         invM = InventoryManager.Instance;
+        uiM = UIManager.Instance;
     }
 
-    // Function to initialize.
-    public void Initialize()
-    {
-        isInteractable = true;
-        UIManager.Instance.AddClosesFocusListener(delegate
-        {
-            isInteractable = false;
-        });
-    }
-
-    private void OnMouseEnter() => outline.enabled = isInteractable;
+    private void OnMouseEnter() => outline.enabled = uiM.IsFocus;
     private void OnMouseExit() => outline.enabled = false;
 
     private void OnMouseDown()
     {
+        // If it's not interactable, return.
+        if (!uiM.IsFocus)
+        {
+            return;
+        }
+
         // If there's item on statue, remove it and replace if selected slot isn't empty.
         if (currentObject)
         {
             // If there's slot to add, add item and destroy object.
             if (invM.AddItem(currentObject.Item))
             {
-                Destroy(currentObject);
+                correctObject.SetActive(false);
+                isConditioned = false;
+
+                Destroy(currentObject.gameObject);
             }
         }
         else if (invM.SelectSlot.Item)
@@ -54,7 +59,15 @@ public class Statue : MonoBehaviour
             invM.RemoveItem(invM.SelectSlot.Item);
             GameObject itemObject = Instantiate(prefab, displayParent);
             currentObject = itemObject.GetComponent<ItemObject>();
-        }
 
+            // If it's the correct item, display correct object.
+            if (currentObject.Item.Equals(validItem))
+            {
+                correctObject.SetActive(true);
+                isConditioned = true;
+
+                statueM?.CheckCondition();
+            }
+        }
     }
 }

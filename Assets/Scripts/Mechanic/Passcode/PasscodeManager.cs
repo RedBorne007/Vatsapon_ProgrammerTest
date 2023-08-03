@@ -39,15 +39,23 @@ public class PasscodeManager : MonoBehaviour
     private Coroutine currentErrorCoroutine;
     private bool isUnlock = false;
 
+    private UIManager uiM;
+
+    private void Start()
+    {
+        uiM = UIManager.Instance;
+    }
+
     // Function to initialize passcode manager.
     public void Initialize()
     {
-        // Make sure there's no space in passcode.
         passCode.Replace(" ", "");
 
-        UIManager.Instance.AddClosesFocusListener(delegate
+        SetNumpadCollider(true);
+
+        uiM.AddClosesFocusListener(delegate
         {
-            SetNumpadLock(true);
+            SetNumpadCollider(false);
         });
     }
 
@@ -112,19 +120,6 @@ public class PasscodeManager : MonoBehaviour
         passCodeText.text = currentPasscode;
     }
 
-    // Function to set lock/unlock numpad.
-    public void SetNumpadLock(bool value)
-    {
-        for (int i = 0; i < passCodeParents.childCount; i++)
-        {
-            if (passCodeParents.GetChild(i).TryGetComponent(out PasscodeNumpad numpad))
-            {
-                numpad.IsPressable = !value;
-                numpad.OnExit?.Invoke();
-            }
-        }
-    }
-
     // Function to display error text with certain time.
     private IEnumerator ErrorDisplay()
     {
@@ -137,5 +132,17 @@ public class PasscodeManager : MonoBehaviour
         passCodeText.color = passCodeColor;
 
         currentErrorCoroutine = null;
+    }
+
+    // Function to enable/disable numpad collider.
+    private void SetNumpadCollider(bool value)
+    {
+        for (int i = 0; i < passCodeParents.childCount; i++)
+        {
+            if (passCodeParents.GetChild(i).TryGetComponent(out PasscodeNumpad numpad))
+            {
+                numpad.Collider.enabled = value;
+            }
+        }
     }
 }

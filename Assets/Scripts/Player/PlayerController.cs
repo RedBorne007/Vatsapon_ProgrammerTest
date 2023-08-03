@@ -26,6 +26,8 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Transform cam;
     [Tooltip("Animator controller of Player's model")]
     [SerializeField] private Animator animator;
+    [Tooltip("Flashlight on player's body")]
+    [SerializeField] private Light flashLight;
 
     private const string ANIM_WALK_HASH = "IsWalking";
     private const string ANIM_RUN_HASH = "IsRunning";
@@ -62,6 +64,12 @@ public class PlayerController : Singleton<PlayerController>
 
     private void Update()
     {
+        // [F] - Toggle Flashlight.
+        if (input.Player.Flashlight.WasPressedThisFrame())
+        {
+            flashLight.enabled = !flashLight.enabled;
+        }
+
         InputHandler();
         RotationHandler();
         AnimationHandler();

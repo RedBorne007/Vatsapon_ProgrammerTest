@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : Singleton<DialogueManager>
 {
     [Header("Settings")]
     [Tooltip("Duration to display dialogue before disappear")]

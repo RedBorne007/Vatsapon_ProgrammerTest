@@ -21,4 +21,15 @@ public class FadePlayer : MonoBehaviour
         fader?.SetAction(onAction);
         fader?.Fade();
     }
+
+    // Function to start fade-out.
+    public void StartFadeOut()
+    {
+        if (!fader)
+        {
+            fader = FadeController.Instance;
+        }
+
+        fader?.FadeOut();
+    }
 }

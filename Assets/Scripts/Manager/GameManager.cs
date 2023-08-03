@@ -19,15 +19,19 @@ public class GameManager : Singleton<GameManager>
     private bool isPause;
     private bool isGameOver;
 
-    private UIManager uiM;
+    private DialogueManager dialogueM;
 
     public bool IsPause => isPause;
     public bool IsGameOver => isGameOver;
 
     private void Start()
     {
-        uiM = UIManager.Instance;
+        dialogueM = DialogueManager.Instance;
+
         SetPause(false);
+
+        fadePlayer.StartFadeOut();
+        dialogueM.Play("Where... am I?");
     }
 
     // Function to unpause/resume the game.

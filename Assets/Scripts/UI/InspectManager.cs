@@ -27,8 +27,14 @@ public class InspectManager : Singleton<InspectManager>, IPointerDownHandler, ID
     private Vector3 previousMousePos;
     private GameObject inspectObject;
 
+    private UIManager uiM;
+    private InventoryManager invM;
+
     private void Start()
     {
+        uiM = UIManager.Instance;
+        invM = InventoryManager.Instance;
+
         AssignRenderTexture();
         currentZoom = (zoomMin + zoomMax) / 2f;
         targetZoom = currentZoom;
@@ -57,18 +63,18 @@ public class InspectManager : Singleton<InspectManager>, IPointerDownHandler, ID
             return;
         }
 
-        UIManager uiM = UIManager.Instance;
-
         Transform camTransform = inspectCamera.transform;
         Vector3 position = camTransform.position + (camTransform.forward * currentZoom);
         interactable.IsShow = false;
+        invM.IsSelectable = false;
 
         inspectObject = Instantiate(gameObject, position, Quaternion.identity);
 
-        uiM.SetFocusObject(uiM.InspectScreen, () =>
+        uiM.SetFocusObject(uiM.InspectScreen, delegate
         {
             GameManager.Instance.SetCameraLock(false);
             GameManager.Instance.SetCursorLock(true);
+            InventoryManager.Instance.IsSelectable = true;
             UIManager.Instance.InspectScreen.SetActive(false);
             interactable.IsShow = true;
 

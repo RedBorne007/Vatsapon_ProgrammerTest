@@ -35,6 +35,19 @@ public class FadeController : Singleton<FadeController>
         StartCoroutine(FadeAsync());
     }
 
+    // Function to fade-out.
+    public void FadeOut()
+    {
+        // If it's currently fading, return.
+        if (isFading)
+        {
+            return;
+        }
+
+        isFading = true;
+        StartCoroutine(FadeOutAsync());
+    }
+
     // Function to set action during fade screen.
     public void SetAction(UnityEvent events) => onAction = events;
 
@@ -66,6 +79,22 @@ public class FadeController : Singleton<FadeController>
         canvasGroup.alpha = 0f;
         canvasGroup.blocksRaycasts = false;
 
+        isFading = false;
+    }
+
+    // Function to fade-out asynchonously.
+    private IEnumerator FadeOutAsync()
+    {
+        canvasGroup.alpha = 1f;
+
+        // Fade-out
+        while (canvasGroup.alpha > 0f)
+        {
+            canvasGroup.alpha -= fadeOutDuration * Time.deltaTime;
+            yield return null;
+        }
+
+        canvasGroup.alpha = 0f;
         isFading = false;
     }
 }

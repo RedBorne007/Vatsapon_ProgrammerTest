@@ -25,6 +25,7 @@ public class UIManager : Singleton<UIManager>
     public GameObject PauseScreen => pauseScreen;
     public GameObject GameOverScreen => gameOverScreen;
     public GameObject InspectScreen => inspectScreen;
+    public bool IsFocus => currentFocusObject;
 
     private void Start()
     {

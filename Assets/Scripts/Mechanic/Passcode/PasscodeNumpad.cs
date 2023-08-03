@@ -26,38 +26,29 @@ public class PasscodeNumpad : MonoBehaviour
     [Tooltip("Event when cursor exit pad's collider")]
     [SerializeField] private UnityEvent onExit;
 
-    private bool isPressable = false;
+    private UIManager uiM;
 
-    public UnityEvent OnExit => onExit;
-    public bool IsPressable
+    public Collider Collider => colliders;
+
+    private void Start()
     {
-        get { return isPressable; }
-        set
-        {
-            colliders.enabled = value;
-            isPressable = value;
-        }
+        uiM = UIManager.Instance;
+        colliders.enabled = false;
     }
 
     private void OnMouseEnter()
     {
-        if (IsPressable)
+        if (uiM.IsFocus)
         {
             onEnter?.Invoke();
         }
     }
 
-    private void OnMouseExit()
-    {
-        if (IsPressable)
-        {
-            onExit?.Invoke();
-        }
-    }
+    private void OnMouseExit() => onExit?.Invoke();
 
     private void OnMouseDown()
     {
-        if (!IsPressable)
+        if (!uiM.IsFocus)
         {
             return;
         }
