@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2716334800903157390}
+  - component: {fileID: 394378730727246285}
   - component: {fileID: 4945851712848103828}
   - component: {fileID: 1149667186217213440}
   m_Layer: 0
@@ -33,6 +34,29 @@ Transform:
   m_Father: {fileID: 7570857958188315631}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &394378730727246285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5908869036610840083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3fdd0aa01e96c248953f60ab580ba8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minIntensity: 0
+  maxIntensity: 1
+  waitMin: 3
+  waitMax: 5
+  waitInBetweenMin: 0.1
+  waitInBetweenMax: 0.5
+  minFlick: 2
+  maxFlick: 5
+  lightRenderer: {fileID: 7570857958188315627}
+  defaultMaterial: {fileID: 2100000, guid: 13c6f099efd1a1146bd51903a9f7bb53, type: 2}
+  lightMaterial: {fileID: 2100000, guid: fc3a2367a970ba848a1a1ac27390c444, type: 2}
 --- !u!108 &4945851712848103828
 Light:
   m_ObjectHideFlags: 0
@@ -51,7 +75,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -109,7 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Version: 1
   m_UsePipelineSettings: 1
-  m_AdditionalLightsShadowResolutionTier: 2
+  m_AdditionalLightsShadowResolutionTier: 0
   m_LightLayerMask: 1
   m_CustomShadowLayers: 0
   m_ShadowLayerMask: 1
@@ -132,7 +156,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7570857958188315631
 Transform:

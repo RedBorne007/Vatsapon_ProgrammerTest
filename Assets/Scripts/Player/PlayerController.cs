@@ -107,13 +107,13 @@ public class PlayerController : Singleton<PlayerController>
         float targetSpeed = walkSpeed;
         
         // Set speed value based on player's state.
-        if (isRunning)
-        {
-            targetSpeed = runSpeed;
-        }
-        else if (isCrouching)
+        if (isCrouching)
         {
             targetSpeed = crouchSpeed;
+        }
+        else if (IsRunning)
+        {
+            targetSpeed = runSpeed;
         }
 
         float x = moveDirection.x * targetSpeed * Time.fixedDeltaTime;

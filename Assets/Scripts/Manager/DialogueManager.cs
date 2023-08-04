@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -21,23 +22,26 @@ public class DialogueManager : Singleton<DialogueManager>
     private string text;
     private float currentDisplayDuration;
 
-    private Task dialogueTask;
+    private CancellationTokenSource dialogueCancellation;
 
     // Function to play dialogue.
     public void Play(string text)
     {
         this.text = text;
         
-        if (dialogueTask != null)
+        if (dialogueCancellation != null)
         {
-            dialogueTask.Dispose();
+            dialogueCancellation.Cancel();
         }
 
-        dialogueTask = PlayDialogue();
+        dialogueCancellation = new CancellationTokenSource();
+        CancellationToken token = dialogueCancellation.Token;
+
+        PlayDialogue(token);
     }
 
     // Function to handle dialogue sequence.
-    private async Task PlayDialogue()
+    private async void PlayDialogue(CancellationToken token)
     {
         currentDisplayDuration = displayDuration;
         dialogueText.text = text;
@@ -46,17 +50,19 @@ public class DialogueManager : Singleton<DialogueManager>
 
         while (currentDisplayDuration > 0f)
         {
-            if (!Application.isPlaying)
+            if (!Application.isPlaying || token.IsCancellationRequested)
             {
+                dialogueCancellation.Dispose();
                 return;
             }
 
+            dialoguePanel.alpha = 1f;
             currentDisplayDuration -= Time.deltaTime;
             await Task.Yield();
         }
 
         await Hide();
-        dialogueTask = null;
+        dialogueCancellation = null;
     }
     
     // Function to show dialogue panel.

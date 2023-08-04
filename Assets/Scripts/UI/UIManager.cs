@@ -8,10 +8,20 @@ public class UIManager : Singleton<UIManager>
     [Tooltip("Transform that contains all HUDs")]
     [SerializeField] private Transform hudTransform;
 
+    [Space]
+
+    [Tooltip("Screen that display control")]
+    [SerializeField] private GameObject controlScreen;
     [Tooltip("Screen that display when pause the game")]
     [SerializeField] private GameObject pauseScreen;
+    [Tooltip("Screen that display pause screen")]
+    [SerializeField] private GameObject pauseMainScreen;
+    [Tooltip("Screen that display setting in pause screen")]
+    [SerializeField] private GameObject pauseSettingScreen;
     [Tooltip("Screen that display when game over")]
     [SerializeField] private GameObject gameOverScreen;
+    [Tooltip("Screen that display when player escaped")]
+    [SerializeField] private GameObject escapedScreen;
     [Tooltip("Screen that display when inspecting object")]
     [SerializeField] private GameObject inspectScreen;
 
@@ -23,7 +33,10 @@ public class UIManager : Singleton<UIManager>
 
     public Transform HUDTransform => hudTransform;
     public GameObject PauseScreen => pauseScreen;
+    public GameObject PauseMainScreen => pauseMainScreen;
+    public GameObject PauseSettingScreen => pauseSettingScreen;
     public GameObject GameOverScreen => gameOverScreen;
+    public GameObject EscapedScreen => escapedScreen;
     public GameObject InspectScreen => inspectScreen;
     public bool IsFocus => currentFocusObject;
 
@@ -36,9 +49,15 @@ public class UIManager : Singleton<UIManager>
     private void Update()
     {
         // If it's game over, return.
-        if (gameM.IsGameOver)
+        if (gameM.IsResult)
         {
             return;
+        }
+
+        // [C] - Toggle control window.
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            controlScreen.SetActive(!controlScreen.activeSelf);
         }
 
         // [ESC] - Pause/Unpause the game or get out of focus object.

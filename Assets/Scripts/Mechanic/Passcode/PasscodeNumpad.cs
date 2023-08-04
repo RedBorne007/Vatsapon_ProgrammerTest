@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
+[ExecuteInEditMode]
 public class PasscodeNumpad : MonoBehaviour
 {
     [Tooltip("Character of this pad")]
@@ -21,10 +22,12 @@ public class PasscodeNumpad : MonoBehaviour
 
     [Space]
 
-    [Tooltip("Event when cursor enter pad's collider")]
+    [Tooltip("Event to execute when cursor enter pad's collider")]
     [SerializeField] private UnityEvent onEnter;
-    [Tooltip("Event when cursor exit pad's collider")]
+    [Tooltip("Event to execute when cursor exit pad's collider")]
     [SerializeField] private UnityEvent onExit;
+    [Tooltip("Event to execute when press on pad's collider")]
+    [SerializeField] private UnityEvent onPress;
 
     private UIManager uiM;
 
@@ -32,8 +35,24 @@ public class PasscodeNumpad : MonoBehaviour
 
     private void Start()
     {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
         uiM = UIManager.Instance;
         colliders.enabled = false;
+    }
+
+    private void Update()
+    {
+        // If character length is momre than 1, clamp back to 1 character.
+        if (padCharacter.Length > 1)
+        {
+            padCharacter = padCharacter.Substring(0, 1);
+        }
+
+        displayText?.SetText(padCharacter);
     }
 
     private void OnMouseEnter()
@@ -53,6 +72,8 @@ public class PasscodeNumpad : MonoBehaviour
             return;
         }
 
+        onPress?.Invoke();
+
         if (isErase)
         {
             passcodeM?.Erase();
@@ -61,16 +82,5 @@ public class PasscodeNumpad : MonoBehaviour
         {
             passcodeM?.Insert(padCharacter);
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        // If character length is momre than 1, clamp back to 1 character.
-        if (padCharacter.Length > 1)
-        {
-            padCharacter = padCharacter.Substring(0, 1);
-        }
-
-        displayText?.SetText(padCharacter);
     }
 }

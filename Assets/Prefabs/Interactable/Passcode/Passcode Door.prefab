@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3749926861994063328}
   - component: {fileID: 4237509035133942673}
+  - component: {fileID: 3623268256656215696}
   m_Layer: 8
   m_Name: Passcode Door
   m_TagString: Untagged
@@ -53,6 +54,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &3623268256656215696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5269699400385505639}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a762557c59fcc4ab94ac085e7a8775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  source: {fileID: 0}
 --- !u!1 &6359133907123936458
 GameObject:
   m_ObjectHideFlags: 0

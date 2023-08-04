@@ -58,6 +58,7 @@ public class EnemyBehavior : MonoBehaviour
     private float currentLookAroundDuration;
     private int currentWanderTime;
 
+    private AudioManager audioM;
     private PlayerController player;
 
     public EnemyState State => enemyState;
@@ -66,6 +67,7 @@ public class EnemyBehavior : MonoBehaviour
 
     private void Start()
     {
+        audioM = AudioManager.Instance;
         player = PlayerController.Instance;
     }
 
@@ -95,7 +97,7 @@ public class EnemyBehavior : MonoBehaviour
             break;
         }
     }
-    
+
     // Function to handle enemy's animation.
     private void AnimationHandler()
     {
@@ -283,6 +285,7 @@ public class EnemyBehavior : MonoBehaviour
         switch (newState)
         {
             case EnemyState.Patrol:
+            audioM.FadeInMusic("Ambience_Normal");
             currentPatrolWaitDuration = 0f;
             break;
 
@@ -296,6 +299,19 @@ public class EnemyBehavior : MonoBehaviour
             break;
 
             case EnemyState.Chase:
+
+            // Play Chase music.
+            if (audioM.CurrentMusic)
+            {
+                if (!audioM.CurrentMusic.Name.Equals("Ambience_Chase"))
+                {
+                    audioM.FadeInMusic("Ambience_Chase");
+                }
+            }
+            else
+            {
+                audioM.FadeInMusic("Ambience_Chase");
+            }
 
             navAgent.isStopped = true;
             currentLookAroundDuration = 0f;

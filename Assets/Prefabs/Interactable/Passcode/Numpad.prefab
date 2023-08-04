@@ -186,6 +186,7 @@ GameObject:
   - component: {fileID: 8967633257788166896}
   - component: {fileID: 2457325205279629022}
   - component: {fileID: 5885442674872771833}
+  - component: {fileID: 429688096567853217}
   m_Layer: 0
   m_Name: Numpad
   m_TagString: Untagged
@@ -258,6 +259,22 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  onPress:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 429688096567853217}
+        m_TargetAssemblyTypeName: AudioPlayer, Assembly-CSharp
+        m_MethodName: PlaySFX
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 11400000, guid: bf3d18bf66bfd204f8ac2987815ade40,
+            type: 2}
+          m_ObjectArgumentAssemblyTypeName: AudioProfile, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!33 &8967633257788166896
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -321,3 +338,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &429688096567853217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8419163738949681611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a762557c59fcc4ab94ac085e7a8775, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  source: {fileID: 0}

@@ -46,6 +46,8 @@ public class Statue : MonoBehaviour
             // If there's slot to add, add item and destroy object.
             if (invM.AddItem(currentObject.Item))
             {
+                AudioManager.Instance.PlaySFX("Cube_Interact");
+
                 correctObject.SetActive(false);
                 isConditioned = false;
 
@@ -59,6 +61,8 @@ public class Statue : MonoBehaviour
             invM.RemoveItem(invM.SelectSlot.Item);
             GameObject itemObject = Instantiate(prefab, displayParent);
             currentObject = itemObject.GetComponent<ItemObject>();
+
+            AudioManager.Instance.PlaySFX("Cube_Interact");
 
             // If it's the correct item, display correct object.
             if (currentObject.Item.Equals(validItem))

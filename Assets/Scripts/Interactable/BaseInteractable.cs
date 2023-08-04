@@ -21,7 +21,9 @@ public abstract class BaseInteractable : MonoBehaviour
 
     [Space]
 
+    [Tooltip("Event to execute when interact this object for the first time")]
     [SerializeField] private UnityEvent onFirstInteract;
+    [Tooltip("Event to execute when interact this object")]
     [SerializeField] private UnityEvent onInteract;
 
     protected bool isInteractable = true; // Determine if it's interactable or not.

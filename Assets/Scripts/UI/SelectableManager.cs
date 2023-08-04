@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[ExecuteInEditMode]
 [RequireComponent(typeof(Selectable))]
 public class SelectableManager : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerUpHandler
 {
@@ -21,12 +22,12 @@ public class SelectableManager : MonoBehaviour, IPointerEnterHandler, IPointerEx
     [Tooltip("Event that execute based on button events")]
     [SerializeField] private SelectableManager_Event events;
 
+    private void Update() => label?.SetText(labelText);
+
     public void OnPointerEnter(PointerEventData eventData) => events.OnEnter?.Invoke();
     public void OnPointerExit(PointerEventData eventData) => events.OnExit?.Invoke();
     public void OnPointerClick(PointerEventData eventData) => events.OnClick?.Invoke();
     public void OnPointerUp(PointerEventData eventData) => events.OnRelease?.Invoke();
-
-    private void OnDrawGizmos() => label?.SetText(labelText);
 }
 
 [System.Serializable]

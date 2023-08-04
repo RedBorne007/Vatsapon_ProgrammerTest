@@ -17,21 +17,24 @@ public class GameManager : Singleton<GameManager>
     [SerializeField] private FadePlayer fadePlayer;
 
     private bool isPause;
-    private bool isGameOver;
+    private bool isResult;
 
     private DialogueManager dialogueM;
+    private AudioManager audioM;
 
     public bool IsPause => isPause;
-    public bool IsGameOver => isGameOver;
+    public bool IsResult => isResult;
 
     private void Start()
     {
         dialogueM = DialogueManager.Instance;
+        audioM = AudioManager.Instance;
 
         SetPause(false);
 
         fadePlayer.StartFadeOut();
         dialogueM.Play("Where... am I?");
+        audioM.PlayMusic("Ambience_Normal");
     }
 
     // Function to unpause/resume the game.
@@ -68,19 +71,57 @@ public class GameManager : Singleton<GameManager>
             dof.active = value;
         }
 
-        UIManager.Instance.PauseScreen.SetActive(isPause);
+        UIManager uiM = UIManager.Instance;
+        uiM.PauseScreen.SetActive(isPause);
+
+        // If pause screen is closed, enable Main and disable Setting screen.
+        if (!value)
+        {
+            uiM.PauseMainScreen.SetActive(true);
+            uiM.PauseSettingScreen.SetActive(false);
+        }
+    }
+
+    // Function to execute when player escaped.
+    public void Escaped()
+    {
+        // If it's already game over, return.
+        if (isResult)
+        {
+            return;
+        }
+
+        audioM.FadeOutMusic();
+        isResult = true;
+        fadePlayer?.SetFadeColor(Color.white);
+        fadePlayer?.SetAction(delegate
+        {
+            UIManager.Instance.EscapedScreen.SetActive(true);
+            SetCameraLock(true);
+            SetCursorLock(false);
+        });
+
+        fadePlayer?.StartFade();
     }
 
     // Function to execute when game over.
     public void GameOver()
     {
         // If it's already game over, return.
-        if (isGameOver)
+        if (isResult)
         {
             return;
         }
 
-        isGameOver = true;
+        audioM.FadeOutMusic();
+        isResult = true;
+        fadePlayer?.SetAction(delegate
+        {
+            UIManager.Instance.GameOverScreen.SetActive(true);
+            SetCameraLock(true);
+            SetCursorLock(false);
+        });
+
         fadePlayer?.StartFade();
     }
 }

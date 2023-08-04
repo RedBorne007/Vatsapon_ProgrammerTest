@@ -14,6 +14,7 @@ public class TriggerBox : MonoBehaviour
     {
         if (!isTriggered)
         {
+            isTriggered = true;
             onTrigger?.Invoke();
         }
     }

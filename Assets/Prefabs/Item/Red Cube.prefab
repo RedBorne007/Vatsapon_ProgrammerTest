@@ -72,6 +72,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Red Cube
       objectReference: {fileID: 0}
+    - target: {fileID: 3166782190868013313, guid: e5b6c2be0f810eb4cb2c6292126ee63d,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 0.6121682
+      objectReference: {fileID: 0}
+    - target: {fileID: 3166782190868013313, guid: e5b6c2be0f810eb4cb2c6292126ee63d,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 0.60784316
+      objectReference: {fileID: 0}
+    - target: {fileID: 3166782190868013313, guid: e5b6c2be0f810eb4cb2c6292126ee63d,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3867548926510645286, guid: e5b6c2be0f810eb4cb2c6292126ee63d,
         type: 3}
       propertyPath: m_Materials.Array.data[0]

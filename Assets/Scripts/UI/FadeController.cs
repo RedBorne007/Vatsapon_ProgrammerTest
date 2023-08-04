@@ -1,9 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class FadeController : Singleton<FadeController>
 {
@@ -16,11 +18,23 @@ public class FadeController : Singleton<FadeController>
     [SerializeField] private float fadePauseDuration = 0.5f;
 
     [Header("References")]
+    [Tooltip("Image panel of fade screen")]
+    [SerializeField] private Image fadeImage;
     [Tooltip("Canvas group that display fade screen")]
     [SerializeField] private CanvasGroup canvasGroup;
 
-    private UnityEvent onAction;
+    private UnityEvent onUnityAction;
+    private Action onAction;
     private bool isFading = false;
+
+    // Function to set color of fading screen.
+    public void SetFadeColor(Color color)
+    {
+        if (fadeImage)
+        {
+            fadeImage.color = color;
+        }
+    }
 
     // Function to fade the panel
     public void Fade()
@@ -48,8 +62,11 @@ public class FadeController : Singleton<FadeController>
         StartCoroutine(FadeOutAsync());
     }
 
-    // Function to set action during fade screen.
-    public void SetAction(UnityEvent events) => onAction = events;
+    // Function to set unity action during fade screen.
+    public void SetUnityAction(UnityEvent events) => onUnityAction = events;
+
+    // Function to set unity action during fade screen.
+    public void SetAction(Action action) => onAction = action;
 
     // Functon to fade asychonously.
     private IEnumerator FadeAsync()
@@ -65,7 +82,10 @@ public class FadeController : Singleton<FadeController>
         }
 
         canvasGroup.alpha = 1f;
+
+        onUnityAction?.Invoke();
         onAction?.Invoke();
+        onAction = () => { };
 
         yield return new WaitForSeconds(fadePauseDuration);
 
