@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05d99905c3b2806478d45f2cfe877c55, type: 3}
-  m_Name: Purple Cube
+  m_Script: {fileID: 11500000, guid: 300c12bf57cada244872184fe0d957e7, type: 3}
+  m_Name: Player_Flashlight_Toggle
   m_EditorClassIdentifier: 
-  itemSprite: {fileID: 21300000, guid: 0e450676f75fdb44ebbfa5ef57dad383, type: 3}
-  itemPrefab: {fileID: 244588458409218108, guid: 7c6d6d3307fd59342a96632db0937458,
-    type: 3}
+  clip: {fileID: 8300000, guid: 5fa03c04ca6a92540952dda61f9000f0, type: 3}
+  volume: 100
+  pitch: 1

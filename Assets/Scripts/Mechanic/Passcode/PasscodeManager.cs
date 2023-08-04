@@ -40,17 +40,19 @@ public class PasscodeManager : MonoBehaviour
     private bool isUnlock = false;
 
     private UIManager uiM;
+    private AudioManager audioM;
 
     private void Start()
     {
         uiM = UIManager.Instance;
+        audioM = AudioManager.Instance;
     }
 
     // Function to initialize passcode manager.
     public void Initialize()
     {
+        // Make sure there's no space in passcode.
         passCode.Replace(" ", "");
-
         SetNumpadCollider(true);
 
         uiM.AddClosesFocusListener(delegate
@@ -90,6 +92,8 @@ public class PasscodeManager : MonoBehaviour
             }
             else
             {
+                audioM.PlaySFX("Passcode_Wrong");
+
                 currentPasscode = "";
                 currentErrorCoroutine = StartCoroutine(ErrorDisplay());
             }

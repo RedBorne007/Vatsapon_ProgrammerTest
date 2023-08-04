@@ -10,12 +10,14 @@ public class ExamineInteractable : BaseInteractable
     [SerializeField] private CinemachineVirtualCamera inspectCamera;
 
     private UIManager uiM;
+    private PlayerController playerM;
 
     protected override void Start()
     {
         base.Start();
 
         uiM = UIManager.Instance;
+        playerM = PlayerController.Instance;
     }
 
     // Function to execute when player interact with this interactable.
@@ -25,9 +27,12 @@ public class ExamineInteractable : BaseInteractable
 
         isShow = false;
         colliders.enabled = false;
+
+        playerM.Interact.SetRaycastable(false);
         
         uiM.SetFocusObject(inspectCamera.gameObject, () =>
         {
+            PlayerController.Instance.Interact.SetRaycastable(true);
             GameManager.Instance.SetCameraLock(false);
             GameManager.Instance.SetCursorLock(true);
             UIManager.Instance.InspectScreen.SetActive(false);

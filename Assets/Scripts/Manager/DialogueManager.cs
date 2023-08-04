@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,26 +23,31 @@ public class DialogueManager : Singleton<DialogueManager>
     private string text;
     private float currentDisplayDuration;
 
-    private CancellationTokenSource dialogueCancellation;
+    private CancellationTokenSource cancelToken;
+
+    private void Start()
+    {
+        cancelToken = new CancellationTokenSource();
+    }
 
     // Function to play dialogue.
     public void Play(string text)
     {
         this.text = text;
-        
-        if (dialogueCancellation != null)
+
+        try
         {
-            dialogueCancellation.Cancel();
+            cancelToken?.Cancel();
         }
+        catch (ObjectDisposedException) { }
 
-        dialogueCancellation = new CancellationTokenSource();
-        CancellationToken token = dialogueCancellation.Token;
+        cancelToken = new CancellationTokenSource();
 
-        PlayDialogue(token);
+        PlayDialogue();
     }
 
     // Function to handle dialogue sequence.
-    private async void PlayDialogue(CancellationToken token)
+    private async void PlayDialogue()
     {
         currentDisplayDuration = displayDuration;
         dialogueText.text = text;
@@ -50,19 +56,29 @@ public class DialogueManager : Singleton<DialogueManager>
 
         while (currentDisplayDuration > 0f)
         {
-            if (!Application.isPlaying || token.IsCancellationRequested)
+            if (!Application.isPlaying)
             {
-                dialogueCancellation.Dispose();
                 return;
             }
 
-            dialoguePanel.alpha = 1f;
-            currentDisplayDuration -= Time.deltaTime;
-            await Task.Yield();
+            try
+            {
+                dialoguePanel.alpha = 1f;
+                currentDisplayDuration -= Time.deltaTime;
+                await Task.Yield();
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            finally
+            {
+                cancelToken?.Dispose();
+            }
         }
 
         await Hide();
-        dialogueCancellation = null;
+        cancelToken = null;
     }
     
     // Function to show dialogue panel.
@@ -75,8 +91,19 @@ public class DialogueManager : Singleton<DialogueManager>
                 return;
             }
 
-            dialoguePanel.alpha += fadeDuration * Time.deltaTime;
-            await Task.Yield();
+            try
+            {
+                dialoguePanel.alpha += fadeDuration * Time.deltaTime;
+                await Task.Yield();
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            finally
+            {
+                cancelToken?.Dispose();
+            }
         }
 
         dialoguePanel.alpha = 1f;
@@ -92,8 +119,19 @@ public class DialogueManager : Singleton<DialogueManager>
                 return;
             }
 
-            dialoguePanel.alpha -= fadeDuration * Time.deltaTime;
-            await Task.Yield();
+            try
+            {
+                dialoguePanel.alpha -= fadeDuration * Time.deltaTime;
+                await Task.Yield();
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+            finally
+            {
+                cancelToken?.Dispose();
+            }
         }
 
         dialoguePanel.alpha = 0f;

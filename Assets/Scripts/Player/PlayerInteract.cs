@@ -15,11 +15,28 @@ public class PlayerInteract : MonoBehaviour
     [Tooltip("Range of player's interaction")]
     [SerializeField] private float interactRange = 5f;
 
+    private bool isRaycastable = true;
     private BaseInteractable currentInteractable;
 
     private void Update()
     {
-        RaycastHandler();
+        if (isRaycastable)
+        {
+            RaycastHandler();
+        }
+    }
+    
+    // Function to make player able/unable to raycast to interactable.
+    public void SetRaycastable(bool value)
+    {
+        // If player is currently raycast on something, make it unraycasted.
+        if (!value && currentInteractable)
+        {
+            currentInteractable.SetRaycasted(false);
+            currentInteractable = null;
+        }
+
+        isRaycastable = value;
     }
 
     // Function to handle raycast for interaction.

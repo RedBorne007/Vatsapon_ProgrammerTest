@@ -32,6 +32,8 @@ public class EnemyBehavior : MonoBehaviour
     [SerializeField] private float wanderRange = 2;
     [Tooltip("Range to destination (In case it's unreachable position)")]
     [SerializeField] private float closestRange = 2f;
+    [Tooltip("Delay before music goes back to normal state")]
+    [SerializeField] private float musicDelay = 7f;
 
     [Header("References")]
     [Tooltip("State of enemy's behavior")]
@@ -57,9 +59,11 @@ public class EnemyBehavior : MonoBehaviour
     private float currentPatrolWaitDuration;
     private float currentLookAroundDuration;
     private int currentWanderTime;
+    private float currentMusicDelay;
 
     private AudioManager audioM;
     private PlayerController player;
+    private GameManager gameM;
 
     public EnemyState State => enemyState;
     public Vector3 LastSeenPosition { get { return lastSeenPosition; } set { lastSeenPosition = value; } }
@@ -69,11 +73,23 @@ public class EnemyBehavior : MonoBehaviour
     {
         audioM = AudioManager.Instance;
         player = PlayerController.Instance;
+        gameM = GameManager.Instance;
     }
 
     private void Update()
     {
         AnimationHandler();
+
+        // Music delay before goes back to normal ambience.
+        if (currentMusicDelay > 0f)
+        {
+            currentMusicDelay -= Time.deltaTime;
+
+            if (currentMusicDelay <= 0f && enemyState != EnemyState.Chase && !audioM.CurrentMusic.Name.Equals("Ambience_Normal"))
+            {
+                audioM.FadeInMusic("Ambience_Normal");
+            }
+        }
 
         // If player is dead, stop moving.
         if (player.IsDead)
@@ -98,9 +114,23 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
+    // Function to force enemy to wander at certain position.
+    public void ForceWander(Transform transform)
+    {
+        ChangeState(EnemyState.Wander);
+        lastSeenPosition = transform.position;
+    }
+
     // Function to handle enemy's animation.
     private void AnimationHandler()
     {
+        if (gameM.IsResult)
+        {
+            animator.SetBool(ANIM_WALK_HASH, false);
+            animator.SetBool(ANIM_CHASE_HASH, false);
+            return;
+        }
+
         animator.SetBool(ANIM_WALK_HASH, !navAgent.isStopped && enemyState != EnemyState.Chase);
         animator.SetBool(ANIM_CHASE_HASH, !navAgent.isStopped && enemyState == EnemyState.Chase);
     }
@@ -285,20 +315,22 @@ public class EnemyBehavior : MonoBehaviour
         switch (newState)
         {
             case EnemyState.Patrol:
-            audioM.FadeInMusic("Ambience_Normal");
             currentPatrolWaitDuration = 0f;
             break;
 
             case EnemyState.Wander:
 
+            currentMusicDelay = musicDelay;
             currentWanderTime = wanderTime;
             currentLookAroundDuration = 0f;
-            
+
             AssignWanderPosition();
             
             break;
 
             case EnemyState.Chase:
+
+            currentMusicDelay = 0f;
 
             // Play Chase music.
             if (audioM.CurrentMusic)

@@ -26,8 +26,10 @@ public class PlayerController : Singleton<PlayerController>
     [SerializeField] private Transform cam;
     [Tooltip("Animator controller of Player's model")]
     [SerializeField] private Animator animator;
+    [Tooltip("Interact handler of this player")]
+    [SerializeField] private PlayerInteract interact;
     [Tooltip("Flashlight on player's body")]
-    [SerializeField] private Light flashLight;
+    [SerializeField] private GameObject flashLight;
 
     private const string ANIM_WALK_HASH = "IsWalking";
     private const string ANIM_RUN_HASH = "IsRunning";
@@ -42,7 +44,8 @@ public class PlayerController : Singleton<PlayerController>
 
     private float currentTurnVelocity; // Current turn/rotation value.
 
-    private PlayerInput input; // Current player's input.
+    private PlayerInput input;
+    private AudioManager audioM;
 
     public Transform Detect => detectTransform;
     public bool IsDead => isDead;
@@ -50,6 +53,7 @@ public class PlayerController : Singleton<PlayerController>
     public bool IsWalking => moveInput != Vector2.zero;
     public bool IsRunning => IsWalking && isRunning;
     public PlayerInput Input => input;
+    public PlayerInteract Interact => interact;
 
     protected override void Awake()
     {
@@ -57,6 +61,8 @@ public class PlayerController : Singleton<PlayerController>
 
         input = new PlayerInput();
         input.Enable();
+
+        audioM = AudioManager.Instance;
     }
 
     private void OnEnable() => input.Enable();
@@ -67,7 +73,8 @@ public class PlayerController : Singleton<PlayerController>
         // [F] - Toggle Flashlight.
         if (input.Player.Flashlight.WasPressedThisFrame())
         {
-            flashLight.enabled = !flashLight.enabled;
+            audioM.PlaySFX("Player_Flashlight_Toggle");
+            flashLight.SetActive(!flashLight.activeSelf);
         }
 
         InputHandler();
